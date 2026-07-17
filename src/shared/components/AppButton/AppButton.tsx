@@ -1,3 +1,5 @@
+import { Gradients } from "@/shared/theme/gradients";
+import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
     ActivityIndicator,
@@ -5,20 +7,14 @@ import {
     Text,
     ViewStyle,
 } from "react-native";
-
-import { Gradients } from "@/shared/theme/gradients";
-import { LinearGradient } from "expo-linear-gradient";
 import { styles } from "./AppButton.styles";
 
 interface AppButtonProps {
     title: string;
     onPress: () => void;
-
     loading?: boolean;
     disabled?: boolean;
-
     style?: ViewStyle;
-
     icon?: React.ReactNode;
 }
 
@@ -35,15 +31,18 @@ export default function AppButton({
             onPress={onPress}
             disabled={disabled || loading}
             style={({ pressed }) => [
+                //styles.button, // Giữ lại chiều cao gốc nếu style truyền vào không có
+                style,           // Style custom từ ngoài truyền vào (như loginButton)
                 pressed && styles.pressed,
-                disabled && styles.disabled,
+                (disabled || loading) && styles.disabled,
             ]}
         >
+            {/* Thẻ LinearGradient sẽ chiếm trọn 100% không gian và bo góc của Pressable ngoài */}
             <LinearGradient
                 colors={Gradients.primary}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={[styles.button, style]}
+                style={[styles.button, { width: "100%", height: "100%" }]} 
             >
                 {loading ? (
                     <ActivityIndicator color="#fff" />
