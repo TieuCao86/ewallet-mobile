@@ -32,14 +32,12 @@ export default function LoginScreen() {
 
         setLoading(true);
         try {
-            // Gọi hàm login từ Context (đã cấu hình sẵn lưu token, nạp header axios)
             await login(email, password);
 
-            // Đăng nhập thành công -> Điều hướng sang màn hình Home bên trong (tabs)
-            // router.replace("/(tabs)/home");
-            alert("Login thành công")
+            alert("Login thành công");
+            router.replace("/(tabs)/home");
+
         } catch (error: any) {
-            // Bắt lỗi từ server trả về (Sai mật khẩu, không tồn tại tài khoản...)
             const errorMsg = error.response?.data?.message || "Đăng nhập thất bại. Vui lòng thử lại!";
             console.log("=== LỖI ĐĂNG NHẬP THỰC TẾ ===", error.response?.data || error.message);
             Alert.alert("Lỗi", errorMsg);

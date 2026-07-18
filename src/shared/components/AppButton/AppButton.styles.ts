@@ -1,28 +1,23 @@
+import { Colors } from "@/shared/theme/colors";
+import { Radius } from "@/shared/theme/radius";
+import { Shadows } from "@/shared/theme/shadows";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   button: {
     height: 52,
-    borderRadius: 18,
+    borderRadius: Radius.xl,
 
     justifyContent: "center",
     alignItems: "center",
 
     flexDirection: "row",
 
-    shadowColor: "#2072A6",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-
-    elevation: 6,
+    ...Shadows.button,
   },
 
   text: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 16,
     fontWeight: "700",
   },
