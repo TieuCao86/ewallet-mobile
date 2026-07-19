@@ -34,7 +34,18 @@ export default function HomeScreen() {
             {/* Nút Chuông Thông báo nền trắng tròn */}
             <TouchableOpacity style={styles.notificationBtn}>
               <MaterialCommunityIcons name="bell" size={20} color="#005BEA" />
-              <View style={styles.notiDot} />
+              {(user?.unreadNotificationCount ?? 0) > 0 && (
+                <>
+                  <View style={styles.notiDot} />
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>
+                      {user!.unreadNotificationCount > 99
+                        ? "99+"
+                        : user!.unreadNotificationCount}
+                    </Text>
+                  </View>
+                </>
+              )}
             </TouchableOpacity>
           </View>
 
@@ -44,19 +55,23 @@ export default function HomeScreen() {
               <View>
                 <Text style={styles.balanceLabel}>Số dư khả dụng</Text>
                 <Text style={styles.balanceValue}>
-                  {user?.balance ? user.balance.toLocaleString('vi-VN') : '95.000'}đ
+                  {(user?.balance ?? 0).toLocaleString("vi-VN")} đ
                 </Text>
               </View>
               {/* Ô hiển thị Tên được bo mờ tinh tế */}
               <View style={styles.userTag}>
-                <Text style={styles.userTagText}>👤 {user?.fullName || 'Cao Quốc Trung'}</Text>
+                <Text style={styles.userTagText}>
+                  👤 {user?.fullName ?? ""}
+                </Text>
               </View>
             </View>
 
             <View style={styles.balanceFooter}>
               <Text style={styles.accountLabel}>TÀI KHOẢN</Text>
               <View style={styles.accountNumberBox}>
-                <Text style={styles.accountNumber}>{user?.walletNumber || 'WAL82902822542'}</Text>
+                <Text style={styles.accountNumber}>
+                  {user?.walletNumber ?? ""}
+                </Text>
               </View>
             </View>
           </View>
@@ -106,6 +121,25 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#F4F6F9' },
   scrollView: { flex: 1 },
+
+  badge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: "#EF4444",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 4,
+  },
+
+  badgeText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "700",
+  },
 
   // Nền Gradient ôm trọn đầu trang
   topWrapper: {

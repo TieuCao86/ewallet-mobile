@@ -1,26 +1,12 @@
-import axiosClient from "@/shared/api/axiosClient";
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface LoginResponse {
-  success: boolean;
-  message: string;
-  data: {
-    accessToken: string;
-    tokenType: string | null;
-    userId: number;
-    email: string;
-    role: string;
-  };
-}
+import { API, ApiResponse, axiosClient } from "@/shared/api";
+import { LoginData, LoginRequest } from "../types/auth";
 
 class AuthService {
-  async login(request: LoginRequest): Promise<LoginResponse> {
-    const response = await axiosClient.post<LoginResponse>(
-      "/api/auth/login",
+  async login(
+    request: LoginRequest
+  ): Promise<ApiResponse<LoginData>> {
+    const response = await axiosClient.post<ApiResponse<LoginData>>(
+      `${API.AUTH}/login`,
       request
     );
 
