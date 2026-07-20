@@ -2,6 +2,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { AppIconButton } from '@/shared/components/AppIconButton/AppIconButton';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function HomeScreen() {
@@ -92,7 +93,12 @@ export default function HomeScreen() {
             <AppIconButton iconName="arrow-up-bold" title="Rút tiền" variant="circle-blue" />
             <AppIconButton iconName="swap-horizontal" title="Chuyển khoản" variant="circle-blue" />
             <AppIconButton iconName="piggy-bank" title="Gửi tiết kiệm" variant="circle-blue" />
-            <AppIconButton iconName="history" title="Lịch sử GD" variant="circle-blue" />
+            <AppIconButton
+              iconName="history"
+              title="Lịch sử GD"
+              variant="circle-blue"
+              onPress={() => router.push("/transaction/history")}
+            />
           </View>
 
           {/* PHẦN HOẠT ĐỘNG CHỨC NĂNG KHÁC (LƯỚI CHIA ĐỀU 3 CỘT Ô TRẮNG LỚN) */}
