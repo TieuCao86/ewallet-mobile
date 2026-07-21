@@ -7,33 +7,31 @@ interface Props {
 
 export default function TransactionItem({ item }: Props) {
 
-    const income = item.type === "IN";
+    // 1. Kiểm tra chiều tiền vào dựa trên direction (IN)
+    const isIncome = item.direction === "IN";
+
+    // 2. Hiển thị đối tác giao dịch hoặc mô tả/mã giao dịch
+    const displayTitle =
+        item.otherPartyName || item.description || item.transactionCode;
 
     return (
         <View style={styles.container}>
-
             <View style={{ flex: 1 }}>
-                <Text style={styles.title}>
-                    {item.title}
+                <Text style={styles.title} numberOfLines={1}>
+                    {displayTitle}
                 </Text>
-
-                <Text style={styles.time}>
-                    {item.createdAt}
-                </Text>
+                <Text style={styles.time}>{item.createdAt}</Text>
             </View>
 
             <Text
                 style={[
                     styles.amount,
-                    {
-                        color: income ? "#10B981" : "#EF4444"
-                    }
+                    { color: isIncome ? "#10B981" : "#EF4444" },
                 ]}
             >
-                {income ? "+" : "-"}
-                {item.amount.toLocaleString("vi-VN")}
+                {isIncome ? "+" : "-"}
+                {item.amount.toLocaleString("vi-VN")} đ
             </Text>
-
         </View>
     );
 }

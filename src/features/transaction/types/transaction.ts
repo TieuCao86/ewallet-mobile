@@ -1,9 +1,29 @@
-export type TransactionType = "ALL" | "IN" | "OUT";
+export type TransactionType = "TRANSFER" | "TOP_UP" | "WITHDRAW";
+
+export type TransactionDirection = "IN" | "OUT";
+
+export type TransactionFilterType = "ALL" | TransactionDirection;
+
+export type TransactionStatus = "SUCCESS" | "PENDING" | "FAILED";
 
 export interface Transaction {
-  id: string;
-  title: string;
+  transactionCode: string;
   amount: number;
-  type: "IN" | "OUT";
+  fee: number;
+  type: TransactionType;
+  status: TransactionStatus;
+  otherPartyName: string | null;
+  description: string;
+  direction: TransactionDirection;
   createdAt: string;
+}
+
+export interface TransactionFilterRequest {
+  page?: number;
+  size?: number;
+  type?: TransactionType;
+  direction?: TransactionDirection;
+  status?: TransactionStatus;
+  fromDate?: string;
+  toDate?: string;
 }
