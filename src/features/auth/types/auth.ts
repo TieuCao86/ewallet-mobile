@@ -10,3 +10,10 @@ export interface LoginData {
     email: string;
     role: string;
 }
+
+export interface RegisterRequest {
+    fullName: string;
+    email: string;
+    phone: string;
+    password: string;
+}

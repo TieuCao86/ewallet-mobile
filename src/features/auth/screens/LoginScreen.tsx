@@ -112,12 +112,8 @@ export default function LoginScreen() {
                         onPress={() => router.push("/(auth)/register")}
                         disabled={loading}
                     >
-                        <Text style={styles.registerText}>
-                            Chưa có tài khoản?
-                        </Text>
-                        <Text style={styles.registerLink}>
-                            Đăng ký
-                        </Text>
+                        <Text style={styles.registerText}>Chưa có tài khoản?</Text>
+                        <Text style={styles.registerLink}>Đăng ký</Text>
                     </TouchableOpacity>
                 </View>
             </KeyboardAvoidingView>
