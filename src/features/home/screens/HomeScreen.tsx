@@ -3,7 +3,8 @@ import { AppIconButton } from '@/shared/components/AppIconButton/AppIconButton';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
   const { user } = useAuth();
@@ -114,6 +115,8 @@ export default function HomeScreen() {
             <AppIconButton iconName="shield-check" title="Bảo hiểm" variant="grid-card" />
             <AppIconButton iconName="credit-card" title="Dịch vụ thẻ" variant="grid-card" />
             <AppIconButton iconName="cash-multiple" title="Vay tiêu dùng" variant="grid-card" />
+            <AppIconButton iconName="bank-plus" title="Liên kết NH" variant="grid-card" onPress={() => router.push("/bank/link")}
+            />
           </View>
         </View>
 
