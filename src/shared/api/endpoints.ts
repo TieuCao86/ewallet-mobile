@@ -4,4 +4,5 @@ export const API = {
     WALLET: "/api/wallet",
     TRANSACTIONS: "/api/transactions",
     USER: "/api/user",
+    BANKS: "/api/banks",
 } as const;
