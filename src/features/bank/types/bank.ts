@@ -29,30 +29,3 @@ export interface LinkBankResponse {
   accountNumber: string;
   accountHolder: string;
 }
-
-// Deposit & Withdraw
-export interface WithdrawRequest {
-  bankId: number;
-  amount: number;
-  pin: string;
-}
-
-export interface WithdrawResponse {
-  amount: number;
-  walletBalance: number;
-  bankBalance: number;
-  transactionCode: string;
-}
-
-export interface DepositRequest {
-  bankId: number;
-  amount: number;
-  pin: string;
-}
-
-export interface DepositResponse {
-  amount: number;
-  walletBalance: number;
-  bankBalance: number;
-  transactionCode: string;
-}

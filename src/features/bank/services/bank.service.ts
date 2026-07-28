@@ -1,14 +1,21 @@
 import { API, ApiResponse, axiosClient } from "@/shared/api";
-import { TopUpResponse } from "../../wallet/types/wallet";
+
 import {
     BankMasterResponse,
     BankResponse,
-    DepositRequest,
     LinkBankRequest,
     LinkBankResponse,
-    WithdrawRequest,
-    WithdrawResponse,
 } from "../types/bank";
+
+import {
+    DepositRequest,
+    DepositResponse,
+} from "../types/deposit";
+
+import {
+    WithdrawRequest,
+    WithdrawResponse
+} from "../types/withdraw";
 
 class BankService {
     /**
@@ -94,12 +101,15 @@ class BankService {
     async confirmDeposit(
         request: DepositRequest,
         otp: string
-    ): Promise<ApiResponse<TopUpResponse>> {
-        const response = await axiosClient.post<ApiResponse<TopUpResponse>>(
+    ): Promise<ApiResponse<DepositResponse>> {
+        const response = await axiosClient.post<ApiResponse<DepositResponse>>(
             `${API.BANKS}/deposit/confirm`,
             request,
-            { params: { otp } }
+            {
+                params: { otp },
+            }
         );
+
         return response.data;
     }
 
