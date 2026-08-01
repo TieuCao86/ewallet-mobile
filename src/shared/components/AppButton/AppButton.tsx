@@ -2,10 +2,10 @@ import { Gradients } from "@/shared/theme/gradients";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
-    ActivityIndicator,
-    Pressable,
-    Text,
-    ViewStyle,
+  ActivityIndicator,
+  Pressable,
+  Text,
+  ViewStyle,
 } from "react-native";
 import { styles } from "./AppButton.styles";
 
@@ -31,6 +31,7 @@ export default function AppButton({
       onPress={onPress}
       disabled={disabled || loading}
       style={({ pressed }) => [
+        styles.pressableContainer,
         style,
         pressed && styles.pressed,
         (disabled || loading) && styles.disabled,
@@ -40,7 +41,7 @@ export default function AppButton({
         colors={Gradients.primary}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={[styles.button, { width: "100%", height: "100%" }]}
+        style={styles.gradientButton}
       >
         {loading ? (
           <ActivityIndicator color="#fff" />

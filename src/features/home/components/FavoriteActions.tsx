@@ -4,7 +4,11 @@ import { router } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export const FavoriteActions: React.FC = () => {
+interface FavoriteActionsProps {
+    onTopUp?: () => void;
+}
+
+export const FavoriteActions: React.FC<FavoriteActionsProps> = ({ onTopUp }) => {
     return (
         <View style={styles.container}>
             <View style={styles.sectionHeader}>
@@ -16,7 +20,13 @@ export const FavoriteActions: React.FC = () => {
             </View>
 
             <View style={styles.circleGrid}>
-                <AppIconButton iconName="arrow-down-bold" title="Nạp tiền" variant="circle-blue" />
+                {/* NÚT NẠP TIỀN */}
+                <AppIconButton
+                    iconName="arrow-down-bold"
+                    title="Nạp tiền"
+                    variant="circle-blue"
+                    onPress={onTopUp || (() => router.push('/topup'))}
+                />
                 <AppIconButton iconName="arrow-up-bold" title="Rút tiền" variant="circle-blue" />
                 <AppIconButton iconName="swap-horizontal" title="Chuyển khoản" variant="circle-blue" />
                 <AppIconButton iconName="piggy-bank" title="Gửi tiết kiệm" variant="circle-blue" />

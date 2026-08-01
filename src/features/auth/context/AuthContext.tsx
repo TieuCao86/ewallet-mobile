@@ -80,9 +80,6 @@ export function AuthProvider({
       accessToken
     );
 
-    axiosClient.defaults.headers.common.Authorization =
-      `Bearer ${accessToken}`;
-
     setToken(accessToken);
 
     // 3. Lấy Dashboard

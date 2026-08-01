@@ -4,5 +4,13 @@ export const API = {
     WALLET: "/api/wallet",
     TRANSACTIONS: "/api/transactions",
     USER: "/api/user",
+
+    // Bank API
     BANKS: "/api/banks",
+    BANKS_MASTER: "/api/banks/master",
+    BANKS_LINK: "/api/banks/link",
+
+    // TopUp API
+    TOPUP_INITIATE: "/api/topup/initiate",
+    TOPUP_CONFIRM: "/api/topup/confirm",
 } as const;

@@ -11,6 +11,7 @@ export interface BankResponse {
   id: number;
   bankId: number;
   bankName: string;
+  logo: string;
   accountNumber: string;
   accountHolder: string;
   balance: number;

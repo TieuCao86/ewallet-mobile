@@ -1,11 +1,27 @@
+import BankItem from "@/features/bank/components/BankItem";
+import { BankMasterResponse } from "@/features/bank/types/bank";
 import { StyleSheet, View } from "react-native";
-import BankItem from "./BankItem";
 
-export default function BankGrid({ banks }: any) {
+interface BankGridProps {
+  banks: BankMasterResponse[];
+  selectedId: number | null;
+  onSelectBank: (id: number) => void;
+}
+
+export default function BankGrid({
+  banks,
+  selectedId,
+  onSelectBank,
+}: BankGridProps) {
   return (
     <View style={styles.gridContainer}>
-      {banks.map((item: any) => (
-        <BankItem key={item.id} bank={item} />
+      {banks.map((item) => (
+        <BankItem
+          key={item.id}
+          bank={item}
+          isSelected={selectedId === item.id}
+          onSelect={onSelectBank}
+        />
       ))}
     </View>
   );

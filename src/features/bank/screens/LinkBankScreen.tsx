@@ -9,15 +9,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Hooks & Components
+import BankGrid from "@/features/bank/components/BankGrid";
+import BankSearch from "@/features/bank/components/BankSearch";
+import { useBankLink } from "@/features/bank/hooks/useBankLink";
 import PrimaryButton from "@/shared/components/AppButton";
 import AppInput from "@/shared/components/AppInput";
-import BankGrid from "../components/BankGrid";
-import BankSearch from "../components/BankSearch";
-import { useBankLink } from "../hooks/useBankLink";
 
 export default function LinkBankScreen() {
-    // 1. Thêm () để thực thi hook
     const {
         masterBanks,
         loading,

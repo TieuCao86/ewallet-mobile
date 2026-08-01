@@ -1,7 +1,7 @@
+import bankService from "@/features/bank/services/bank.service";
+import { BankMasterResponse, LinkBankRequest } from "@/features/bank/types/bank";
 import { useEffect, useMemo, useState } from "react";
 import { Alert } from "react-native";
-import bankService from "../services/bank.service";
-import { BankMasterResponse, LinkBankRequest } from "../types/bank";
 
 export const useBankLink = () => {
     const [masterBanks, setMasterBanks] = useState<BankMasterResponse[]>([]);
@@ -65,9 +65,24 @@ export const useBankLink = () => {
 
         try {
             setSubmitting(true);
-            const res = await bankService.linkBank(payload);
-            res.message || `Đã liên kết ngân hàng ${res.data.bankName} thành công!`
-            if (onSuccess) onSuccess();
+            const res = await bankService.linkBank({
+                ...payload,
+                accountNumber: payload.accountNumber.trim(),
+                phone: payload.phone.trim(),
+            });
+
+            const successMessage =
+                res?.message ||
+                `Đã liên kết ngân hàng ${res?.data?.bankName || ""} thành công!`;
+
+            Alert.alert("Thành công", successMessage, [
+                {
+                    text: "OK",
+                    onPress: () => {
+                        if (onSuccess) onSuccess();
+                    },
+                },
+            ]);
         } catch (error: any) {
             Alert.alert("Lỗi", error?.response?.data?.message || "Liên kết thất bại");
         } finally {

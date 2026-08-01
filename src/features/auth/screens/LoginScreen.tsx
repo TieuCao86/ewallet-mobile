@@ -34,7 +34,6 @@ export default function LoginScreen() {
         try {
             await login(email, password);
 
-            alert("Login thành công");
             router.replace("/(tabs)/home");
 
         } catch (error: any) {
@@ -48,7 +47,6 @@ export default function LoginScreen() {
 
     return (
         <ImageBackground
-            // Tối ưu import background bằng Path Alias @ sạch sẽ
             source={require("@/assets/images/login-bg.jpg")}
             style={styles.backgroundImage}
             resizeMode="cover"
