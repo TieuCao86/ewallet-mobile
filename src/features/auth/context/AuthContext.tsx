@@ -45,18 +45,14 @@ export function AuthProvider({
       axiosClient.defaults.headers.common.Authorization =
         `Bearer ${savedToken}`;
 
-      const dashboard = await DashboardService.getDashboard();
-
-      setUser(dashboard.data);
     } catch (error) {
-      console.log("Session expired:", error);
+      console.log(error);
 
       await SecureStore.deleteItemAsync("userToken");
 
       delete axiosClient.defaults.headers.common.Authorization;
 
       setToken(null);
-      setUser(null);
     } finally {
       setLoading(false);
     }

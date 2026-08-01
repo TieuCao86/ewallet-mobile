@@ -1,61 +1,119 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useDashboard } from "@/features/home/hooks/useDashboard";
+
 import ExpenseChart from "@/features/home/components/ExpenseChart";
 import { FavoriteActions } from "@/features/home/components/FavoriteActions";
 import { HomeHeader } from "@/features/home/components/HomeHeader";
 import { ServiceGrid } from "@/features/home/components/ServiceGrid";
 import { WalletBalanceCard } from "@/features/home/components/WalletBalanceCard";
 
-export default function HomeScreen() {
-  const { user } = useAuth();
 
-  // Hàm chuyển hướng sang màn hình Nạp tiền
+export default function HomeScreen() {
+
+  const {
+    data: dashboard,
+    refreshing,
+    onRefresh
+  } = useDashboard();
+
+
   const handleGoToTopUp = () => {
     router.push("/topup");
   };
 
+
   return (
     <SafeAreaView style={styles.safeArea}>
+
       <ScrollView
+
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+
       >
-        {/* TOP BANNER GRADIENT */}
+
         <LinearGradient
           colors={["#005BEA", "#00C6FB"]}
           style={styles.topWrapper}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-          <HomeHeader unreadCount={user?.unreadNotificationCount} />
+
+          <HomeHeader
+            unreadCount={
+              dashboard?.unreadNotificationCount
+            }
+          />
+
 
           <WalletBalanceCard
-            balance={user?.balance}
-            fullName={user?.fullName}
-            walletNumber={user?.walletNumber}
-            onTopUp={handleGoToTopUp}
+
+            balance={
+              dashboard?.balance
+            }
+
+            fullName={
+              dashboard?.fullName
+            }
+
+            walletNumber={
+              dashboard?.walletNumber
+            }
+
+            onTopUp={
+              handleGoToTopUp
+            }
+
           />
+
         </LinearGradient>
 
-        {/* CONTENT BODY */}
+
         <View style={styles.contentBody}>
-          <FavoriteActions onTopUp={handleGoToTopUp} />
+
+          <FavoriteActions
+            onTopUp={handleGoToTopUp}
+          />
+
 
           <ServiceGrid />
 
+
           <ExpenseChart
-            financialHistory={user?.financialStats?.history}
+
+            financialHistory={
+              dashboard?.financialStats?.history
+            }
+
             setActiveTab={(tab) => {
-              if (tab === "transactions") router.push("/transaction/history");
+
+              if (tab === "transactions") {
+                router.push(
+                  "/transaction/history"
+                );
+              }
+
             }}
+
           />
+
         </View>
+
+
       </ScrollView>
+
     </SafeAreaView>
   );
 }
