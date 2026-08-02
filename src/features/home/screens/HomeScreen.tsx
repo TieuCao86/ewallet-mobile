@@ -11,109 +11,56 @@ import { HomeHeader } from "@/features/home/components/HomeHeader";
 import { ServiceGrid } from "@/features/home/components/ServiceGrid";
 import { WalletBalanceCard } from "@/features/home/components/WalletBalanceCard";
 
-
 export default function HomeScreen() {
-
-  const {
-    data: dashboard,
-    refreshing,
-    onRefresh
-  } = useDashboard();
-
+  const { data: dashboard, refreshing, onRefresh } = useDashboard();
 
   const handleGoToTopUp = () => {
     router.push("/topup");
   };
 
-
   return (
     <SafeAreaView style={styles.safeArea}>
-
       <ScrollView
-
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-
       >
-
         <LinearGradient
           colors={["#005BEA", "#00C6FB"]}
           style={styles.topWrapper}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
         >
-
           <HomeHeader
-            unreadCount={
-              dashboard?.unreadNotificationCount
-            }
+            unreadCount={dashboard?.unreadNotificationCount}
           />
-
 
           <WalletBalanceCard
-
-            balance={
-              dashboard?.balance
-            }
-
-            fullName={
-              dashboard?.fullName
-            }
-
-            walletNumber={
-              dashboard?.walletNumber
-            }
-
-            onTopUp={
-              handleGoToTopUp
-            }
-
-          />
-
-        </LinearGradient>
-
-
-        <View style={styles.contentBody}>
-
-          <FavoriteActions
+            balance={dashboard?.balance}
+            fullName={dashboard?.fullName}
+            walletNumber={dashboard?.walletNumber}
             onTopUp={handleGoToTopUp}
           />
+        </LinearGradient>
 
+        <View style={styles.contentBody}>
+          <FavoriteActions onTopUp={handleGoToTopUp} />
 
           <ServiceGrid />
 
-
           <ExpenseChart
-
-            financialHistory={
-              dashboard?.financialStats?.history
-            }
-
+            financialHistory={dashboard?.financialStats?.history}
             setActiveTab={(tab) => {
-
               if (tab === "transactions") {
-                router.push(
-                  "/transaction/history"
-                );
+                router.push("/transaction/history");
               }
-
             }}
-
           />
-
         </View>
-
-
       </ScrollView>
-
     </SafeAreaView>
   );
 }

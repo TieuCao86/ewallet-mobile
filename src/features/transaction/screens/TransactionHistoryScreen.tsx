@@ -1,14 +1,14 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    RefreshControl,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -16,55 +16,24 @@ import TransactionFilter from "../components/TransactionFilter";
 import TransactionItem from "../components/TransactionItem";
 import SearchBar from "../components/TransactionSearch";
 
-import transactionService from "../services/transaction.service";
-import { Transaction, TransactionFilterType } from "../types/transaction";
+import { useTransactionHistory } from "../hooks/useTransactionHistory";
+import { TransactionFilterType } from "../types/transaction";
 
 export default function TransactionHistoryScreen() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [filter, setFilter] = useState<TransactionFilterType>("ALL");
   const [keyword, setKeyword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
 
-  // Load danh sách từ API - Tự chuyển "ALL" thành undefined bên trong hàm
-  const loadTransactions = useCallback(
-    async (currentFilter: TransactionFilterType) => {
-      try {
-        setLoading(true);
+  const { data, isLoading, isRefetching, refetch } = useTransactionHistory(filter);
 
-        const response = await transactionService.getTransactions({
-          page: 0,
-          size: 10,
-          direction: currentFilter === "ALL" ? undefined : currentFilter,
-        });
+  const transactions = data?.content ?? [];
 
-        setTransactions(response.data.content || []);
-      } catch (error) {
-        console.error("Load transaction error:", error);
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    },
-    []
-  );
-
-  // Tự động fetch lại dữ liệu khi đổi tab Filter
-  useEffect(() => {
-    loadTransactions(filter);
-  }, [filter, loadTransactions]);
-
-  // Xử lý kéo xuống làm mới (Pull-to-refresh) - Hết lỗi ts(2345)
-  const handleRefresh = () => {
-    setRefreshing(true);
-    loadTransactions(filter);
-  };
-
-  // Lọc local theo từ khóa tìm kiếm
   const filteredData = useMemo(() => {
-    if (!keyword.trim()) return transactions;
+    if (!keyword.trim()) {
+      return transactions;
+    }
 
     const searchTerm = keyword.trim().toLowerCase();
+
     return transactions.filter(
       (item) =>
         item.otherPartyName?.toLowerCase().includes(searchTerm) ||
@@ -72,6 +41,10 @@ export default function TransactionHistoryScreen() {
         item.transactionCode?.toLowerCase().includes(searchTerm)
     );
   }, [transactions, keyword]);
+
+  const handleRefresh = () => {
+    refetch();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -104,7 +77,7 @@ export default function TransactionHistoryScreen() {
       </View>
 
       {/* Danh sách giao dịch */}
-      {loading && !refreshing ? (
+      {isLoading && !isRefetching ? (
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color="#0A84FF" />
         </View>
@@ -115,7 +88,7 @@ export default function TransactionHistoryScreen() {
           renderItem={({ item }) => <TransactionItem item={item} />}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+            <RefreshControl refreshing={isRefetching} onRefresh={handleRefresh} />
           }
           ListEmptyComponent={
             <View style={styles.centerContainer}>

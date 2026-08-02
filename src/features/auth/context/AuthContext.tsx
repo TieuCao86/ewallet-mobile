@@ -1,10 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 import { createContext, ReactNode, useEffect, useState } from "react";
 
-import axiosClient from "@/shared/api/axiosClient";
-
 import { DashboardResponse } from "@/features/home/types/dashboard";
-import DashboardService from "../../home/services/dashboard.service";
 import AuthService from "../services/auth.service";
 
 interface AuthContextType {
@@ -19,11 +16,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
 );
 
-export function AuthProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<DashboardResponse | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,61 +29,29 @@ export function AuthProvider({
     try {
       const savedToken = await SecureStore.getItemAsync("userToken");
 
-      if (!savedToken) {
-        return;
+      if (savedToken) {
+        setToken(savedToken);
       }
-
-      setToken(savedToken);
-
-      axiosClient.defaults.headers.common.Authorization =
-        `Bearer ${savedToken}`;
-
     } catch (error) {
       console.log(error);
-
       await SecureStore.deleteItemAsync("userToken");
-
-      delete axiosClient.defaults.headers.common.Authorization;
-
       setToken(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const login = async (
-    email: string,
-    password: string
-  ) => {
-    // 1. Login
-    const loginResponse = await AuthService.login({
-      email,
-      password,
-    });
-
+  const login = async (email: string, password: string) => {
+    const loginResponse = await AuthService.login({ email, password });
     const accessToken = loginResponse.data.accessToken;
 
-    // 2. Lưu token
-    await SecureStore.setItemAsync(
-      "userToken",
-      accessToken
-    );
-
+    await SecureStore.setItemAsync("userToken", accessToken);
     setToken(accessToken);
-
-    // 3. Lấy Dashboard
-    const dashboardResponse =
-      await DashboardService.getDashboard();
-
-    setUser(dashboardResponse.data);
   };
 
   const logout = async () => {
     setUser(null);
     setToken(null);
-
-    delete axiosClient.defaults.headers.common.Authorization;
-
     await SecureStore.deleteItemAsync("userToken");
   };
 
