@@ -2,9 +2,12 @@ import { BankResponse } from "@/features/bank/types/bank";
 import { API, ApiResponse, axiosClient } from "@/shared/api";
 import {
     DepositConfirmRequest,
-    DepositInitiateRequest,
-    TopUpResponse,
+    DepositInitiateRequest
 } from "../types/topup";
+
+import {
+    TransactionResultResponse
+} from "@/features/transaction/types/transaction";
 
 class TopUpService {
     // Lấy danh sách tài khoản ngân hàng liên kết để chọn nguồn nạp
@@ -29,11 +32,14 @@ class TopUpService {
     // Bước 2: Xác nhận OTP nạp tiền
     async confirmDeposit(
         payload: DepositConfirmRequest
-    ): Promise<ApiResponse<TopUpResponse>> {
-        const response = await axiosClient.post<ApiResponse<TopUpResponse>>(
-            API.TOPUP_CONFIRM,
-            payload
-        );
+    ): Promise<ApiResponse<TransactionResultResponse>> {
+
+        const response =
+            await axiosClient.post<ApiResponse<TransactionResultResponse>>(
+                API.TOPUP_CONFIRM,
+                payload
+            );
+
         return response.data;
     }
 }

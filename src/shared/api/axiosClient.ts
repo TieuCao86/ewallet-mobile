@@ -1,5 +1,12 @@
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
+
+let accessToken: string | null = null;
+
+export const setAccessToken = (
+  token: string | null
+) => {
+  accessToken = token;
+};
 
 const axiosClient = axios.create({
   baseURL: "http://10.0.2.2:8080",
@@ -9,17 +16,11 @@ const axiosClient = axios.create({
   },
 });
 
-
 axiosClient.interceptors.request.use(
-  async (config) => {
-
-    const token = await SecureStore.getItemAsync(
-      "userToken"
-    );
-
-    if (token) {
+  (config) => {
+    if (accessToken) {
       config.headers.Authorization =
-        `Bearer ${token}`;
+        `Bearer ${accessToken}`;
     }
 
     console.log(
@@ -30,13 +31,12 @@ axiosClient.interceptors.request.use(
 
     console.log(
       "AUTH TOKEN:",
-      token ? "EXISTS" : "NULL"
+      accessToken ? "EXISTS" : "NULL"
     );
 
     return config;
   },
-  error => Promise.reject(error)
+  (error) => Promise.reject(error)
 );
-
 
 export default axiosClient;

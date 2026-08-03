@@ -1,16 +1,15 @@
-export enum OtpType {
-  REGISTER = "REGISTER",
-  FORGOT_PASSWORD = "FORGOT_PASSWORD",
-  TOP_UP = "TOP_UP",
-  WITHDRAW = "WITHDRAW",
-  TRANSFER = "TRANSFER",
-}
+import axiosClient from "@/shared/api/axiosClient";
+import { API } from "@/shared/api/endpoints";
+import { SendOtpRequest, VerifyOtpRequest } from "../types/otp";
 
-class OtpService {
-  async sendOtp(type: OtpType): Promise<void> {
-    // Mock gửi OTP
-    console.log("Mock send OTP:", type);
-  }
-}
+const otpService = {
+  sendOtp(data: SendOtpRequest) {
+    return axiosClient.post(API.OTP_SEND, data);
+  },
 
-export default new OtpService();
+  verifyOtp(data: VerifyOtpRequest) {
+    return axiosClient.post(API.OTP_VERIFY, data);
+  },
+};
+
+export default otpService;

@@ -18,10 +18,15 @@ import { AmountInput } from "../components/AmountInput";
 import { DestinationPicker } from "../components/DestinationPicker";
 import { PaymentSourcePicker } from "../components/PaymentSourcePicker";
 import { TopUpModal } from "../components/TopUpModal";
-import { useTopUp } from "../hooks/useTopUp";
+import { useConfirmTopUp } from "../hooks/useConfirmTopUp";
+import { useInitiateTopUp } from "../hooks/useInitiateTopUp";
+import { useMyPaymentSources } from "../hooks/useMyPaymentSources";
 
 export default function TopUpScreen() {
-    const { myBanks, loading, submitting, handleInitiate, handleConfirm } = useTopUp();
+    const { data: myBanks = [], isLoading } = useMyPaymentSources();
+
+    const initiateMutation = useInitiateTopUp();
+    const confirmMutation = useConfirmTopUp();
 
     const [destination, setDestination] = useState<"wallet" | "bag">("wallet");
     const [amount, setAmount] = useState<string>("");
@@ -37,6 +42,8 @@ export default function TopUpScreen() {
     const [canResend, setCanResend] = useState<boolean>(false);
 
     const numericAmount = Number(amount.replace(/\D/g, "")) || 0;
+    const submitting =
+        initiateMutation.isPending || confirmMutation.isPending;
 
     useEffect(() => {
         let timer: ReturnType<typeof setInterval>;
@@ -68,38 +75,66 @@ export default function TopUpScreen() {
 
     const onSubmitPin = () => {
         if (!selectedBankId) return;
-        handleInitiate(selectedBankId, numericAmount, pin, () => {
-            setCountdown(60);
-            setStep("OTP");
-        });
+
+        initiateMutation.mutate(
+            {
+                bankId: selectedBankId,
+                amount: numericAmount,
+                pin,
+            },
+            {
+                onSuccess: () => {
+                    setCountdown(60);
+                    setStep("OTP");
+                },
+                onError: (error: any) => {
+                    Alert.alert(
+                        "Lỗi",
+                        error?.response?.data?.message || "Xác thực PIN thất bại"
+                    );
+                },
+            }
+        );
     };
 
     const onSubmitOtp = () => {
         if (!selectedBankId) return;
 
-        handleConfirm(
-            selectedBankId,
-            numericAmount,
-            otp,
-            (data) => {
+        confirmMutation.mutate(
+            {
+                bankId: selectedBankId,
+                amount: numericAmount,
+                otp,
+            },
+            {
+                onSuccess: (response) => {
 
-                Alert.alert(
-                    "Nạp tiền thành công",
-                    `Bạn đã nạp ${numericAmount.toLocaleString("vi-VN")} đ vào ví`,
-                    [
-                        {
-                            text: "OK",
-                            onPress: () => {
-                                setStep("IDLE");
-                                setAmount("");
-                                setPin("");
-                                setOtp("");
-                                router.back();
-                            },
+                    const transaction = response.data;
+
+                    setStep("IDLE");
+                    setAmount("");
+                    setPin("");
+                    setOtp("");
+
+                    router.replace({
+                        pathname: "/transaction/success",
+                        params: {
+                            transactionCode: transaction.transactionCode,
+                            amount: String(transaction.amount),
+                            senderName: transaction.senderName,
+                            recipientName: transaction.receiverName,
+                            transactionTime: transaction.completedAt,
+                            transactionType: transaction.type,
                         },
-                    ]
-                );
+                    });
+                },
 
+                onError: (error: any) => {
+                    Alert.alert(
+                        "Lỗi",
+                        error?.response?.data?.message || "OTP không chính xác"
+                    );
+                },
             }
         );
     };
@@ -114,13 +149,23 @@ export default function TopUpScreen() {
     return (
         <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
             {/* HEADER GRADIENT */}
-            <LinearGradient colors={["#005BEA", "#00C6FB"]} style={styles.header}>
-                <TouchableOpacity style={styles.iconBtn} onPress={() => router.back()}>
+            <LinearGradient
+                colors={["#005BEA", "#00C6FB"]}
+                style={styles.header}
+            >
+                <TouchableOpacity
+                    style={styles.iconBtn}
+                    onPress={() => router.back()}
+                >
                     <Ionicons name="arrow-back" size={24} color="#FFF" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Nạp tiền vào ví</Text>
                 <TouchableOpacity style={styles.iconBtn}>
-                    <Ionicons name="information-circle-outline" size={24} color="#FFF" />
+                    <Ionicons
+                        name="information-circle-outline"
+                        size={24}
+                        color="#FFF"
+                    />
                 </TouchableOpacity>
             </LinearGradient>
 
@@ -146,7 +191,7 @@ export default function TopUpScreen() {
                 {/* CARD 2: NGUỒN TIỀN THANH TOÁN */}
                 <PaymentSourcePicker
                     banks={myBanks}
-                    loading={loading}
+                    loading={isLoading}
                     selectedBankId={selectedBankId}
                     onSelectBank={setSelectedBankId}
                     onAddBank={() => router.push("/bank/link" as any)}
@@ -155,10 +200,7 @@ export default function TopUpScreen() {
 
             {/* NÚT BẤM NẠP TIỀN CỐ ĐỊNH Ở ĐÁY MÀN HÌNH */}
             <View style={styles.bottomContainer}>
-                <PrimaryButton
-                    title="NẠP TIỀN"
-                    onPress={onPressTopUp}
-                />
+                <PrimaryButton title="NẠP TIỀN" onPress={onPressTopUp} />
             </View>
 
             {/* MODAL XÁC NHẬN PIN / OTP */}

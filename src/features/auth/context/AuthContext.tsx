@@ -1,11 +1,11 @@
+import { useQueryClient } from "@tanstack/react-query";
 import * as SecureStore from "expo-secure-store";
 import { createContext, ReactNode, useEffect, useState } from "react";
 
-import { DashboardResponse } from "@/features/home/types/dashboard";
+import { setAccessToken } from "@/shared/api/axiosClient";
 import AuthService from "../services/auth.service";
 
 interface AuthContextType {
-  user: DashboardResponse | null;
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -17,7 +17,7 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 );
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<DashboardResponse | null>(null);
+  const queryClient = useQueryClient();
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,34 +31,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (savedToken) {
         setToken(savedToken);
+        setAccessToken(savedToken);
       }
     } catch (error) {
       console.log(error);
       await SecureStore.deleteItemAsync("userToken");
       setToken(null);
+      setAccessToken(null);
     } finally {
       setLoading(false);
     }
   };
 
   const login = async (email: string, password: string) => {
-    const loginResponse = await AuthService.login({ email, password });
-    const accessToken = loginResponse.data.accessToken;
+    const response = await AuthService.login({ email, password });
+    const accessToken = response.data.accessToken;
 
     await SecureStore.setItemAsync("userToken", accessToken);
     setToken(accessToken);
+    setAccessToken(accessToken);
   };
 
   const logout = async () => {
-    setUser(null);
     setToken(null);
+    setAccessToken(null);
+
     await SecureStore.deleteItemAsync("userToken");
+
+    // Xóa toàn bộ cache (Bao gồm cả queryKey ["dashboard"]) khi logout
+    queryClient.clear();
   };
 
   return (
     <AuthContext.Provider
       value={{
-        user,
         token,
         loading,
         login,

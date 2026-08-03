@@ -1,7 +1,8 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
     ActivityIndicator,
+    Alert,
     ScrollView,
     StyleSheet,
     Text,
@@ -11,30 +12,58 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import BankGrid from "@/features/bank/components/BankGrid";
 import BankSearch from "@/features/bank/components/BankSearch";
-import { useBankLink } from "@/features/bank/hooks/useBankLink";
+import { useLinkBank } from "@/features/bank/hooks/useBankLink";
+import { useMasterBanks } from "@/features/bank/hooks/useMasterBanks";
 import PrimaryButton from "@/shared/components/AppButton";
 import AppInput from "@/shared/components/AppInput";
 
 export default function LinkBankScreen() {
-    const {
-        masterBanks,
-        loading,
-        submitting,
-        searchQuery,
-        setSearchQuery,
-        handleLinkBank,
-    } = useBankLink();
+    const { data: masterBanks = [], isLoading } = useMasterBanks();
+    const { mutate, isPending } = useLinkBank();
 
+    const [searchQuery, setSearchQuery] = useState("");
     const [selectedBankId, setSelectedBankId] = useState<number | null>(null);
     const [accountNumber, setAccountNumber] = useState<string>("");
     const [phone, setPhone] = useState<string>("");
 
+    const filteredBanks = useMemo(() => {
+        if (!searchQuery.trim()) {
+            return masterBanks;
+        }
+
+        const keyword = searchQuery.toLowerCase();
+
+        return masterBanks.filter(
+            (bank) =>
+                bank.name.toLowerCase().includes(keyword) ||
+                bank.code.toLowerCase().includes(keyword)
+        );
+    }, [masterBanks, searchQuery]);
+
     const onSubmit = () => {
-        handleLinkBank({
-            bankId: selectedBankId!,
-            accountNumber,
-            phone,
-        });
+        if (!selectedBankId) {
+            Alert.alert("Thông báo", "Vui lòng chọn ngân hàng");
+            return;
+        }
+
+        mutate(
+            {
+                bankId: selectedBankId,
+                accountNumber: accountNumber.trim(),
+                phone: phone.trim(),
+            },
+            {
+                onSuccess: () => {
+                    Alert.alert("Thành công", "Liên kết ngân hàng thành công");
+                },
+                onError: (error: any) => {
+                    Alert.alert(
+                        "Lỗi",
+                        error?.response?.data?.message || "Liên kết thất bại"
+                    );
+                },
+            }
+        );
     };
 
     return (
@@ -46,11 +75,15 @@ export default function LinkBankScreen() {
                 <BankSearch value={searchQuery} onChangeText={setSearchQuery} />
 
                 {/* Danh sách ngân hàng */}
-                {loading ? (
-                    <ActivityIndicator size="large" color="#1976D2" style={styles.loader} />
+                {isLoading ? (
+                    <ActivityIndicator
+                        size="large"
+                        color="#1976D2"
+                        style={styles.loader}
+                    />
                 ) : (
                     <BankGrid
-                        banks={masterBanks}
+                        banks={filteredBanks}
                         selectedId={selectedBankId}
                         onSelectBank={setSelectedBankId}
                     />
@@ -70,11 +103,7 @@ export default function LinkBankScreen() {
                     onChangeText={setAccountNumber}
                     keyboardType="numeric"
                     leftIcon={
-                        <MaterialCommunityIcons
-                            name="bank"
-                            size={22}
-                            color="#1976D2"
-                        />
+                        <MaterialCommunityIcons name="bank" size={22} color="#1976D2" />
                     }
                 />
 
@@ -86,20 +115,16 @@ export default function LinkBankScreen() {
                     onChangeText={setPhone}
                     keyboardType="phone-pad"
                     leftIcon={
-                        <MaterialCommunityIcons
-                            name="phone"
-                            size={22}
-                            color="#1976D2"
-                        />
+                        <MaterialCommunityIcons name="phone" size={22} color="#1976D2" />
                     }
                 />
 
                 {/* Button Submit */}
                 <View style={styles.buttonContainer}>
                     <PrimaryButton
-                        title={submitting ? "ĐANG XỬ LÝ..." : "LIÊN KẾT TÀI KHOẢN"}
+                        title={isPending ? "ĐANG XỬ LÝ..." : "LIÊN KẾT TÀI KHOẢN"}
                         onPress={onSubmit}
-                        disabled={submitting}
+                        disabled={isPending}
                     />
                 </View>
             </ScrollView>

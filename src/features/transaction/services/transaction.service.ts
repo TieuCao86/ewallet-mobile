@@ -2,6 +2,7 @@ import { API, ApiResponse, axiosClient } from "@/shared/api";
 import {
     Transaction,
     TransactionFilterRequest,
+    TransactionResponse
 } from "../types/transaction";
 
 import { PageResponse } from "@/shared/api/pageResponse";
@@ -17,6 +18,18 @@ class TransactionService {
             API.TRANSACTIONS,
             { params: filter }
         );
+
+        return response.data;
+    }
+
+    async getDetail(
+        code: string
+    ): Promise<ApiResponse<TransactionResponse>> {
+
+        const response =
+            await axiosClient.get<ApiResponse<TransactionResponse>>(
+                `${API.TRANSACTIONS}/${code}`
+            );
 
         return response.data;
     }

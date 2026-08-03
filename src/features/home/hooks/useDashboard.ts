@@ -21,7 +21,7 @@ export const useDashboard = () => {
 
     return {
         data,
-        loading: isLoading,
+        isLoading,
         refreshing: isRefetching,
         onRefresh,
         refetch,

@@ -3,13 +3,12 @@ import { router } from "expo-router";
 import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useDashboard } from "@/features/home/hooks/useDashboard";
-
 import ExpenseChart from "@/features/home/components/ExpenseChart";
 import { FavoriteActions } from "@/features/home/components/FavoriteActions";
 import { HomeHeader } from "@/features/home/components/HomeHeader";
 import { ServiceGrid } from "@/features/home/components/ServiceGrid";
 import { WalletBalanceCard } from "@/features/home/components/WalletBalanceCard";
+import { useDashboard } from "@/features/home/hooks/useDashboard";
 
 export default function HomeScreen() {
   const { data: dashboard, refreshing, onRefresh } = useDashboard();
@@ -18,15 +17,21 @@ export default function HomeScreen() {
     router.push("/topup");
   };
 
+  const handleSelectExpenseTab = (tab: string) => {
+    if (tab === "transactions") {
+      router.push("/transaction/history");
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         <LinearGradient
           colors={["#005BEA", "#00C6FB"]}
@@ -53,11 +58,7 @@ export default function HomeScreen() {
 
           <ExpenseChart
             financialHistory={dashboard?.financialStats?.history}
-            setActiveTab={(tab) => {
-              if (tab === "transactions") {
-                router.push("/transaction/history");
-              }
-            }}
+            setActiveTab={handleSelectExpenseTab}
           />
         </View>
       </ScrollView>
@@ -74,7 +75,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 100, // Thay thế cho View rỗng height: 100
+    paddingBottom: 100,
   },
   topWrapper: {
     paddingTop: 40,
