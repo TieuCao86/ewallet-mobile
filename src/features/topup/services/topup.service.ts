@@ -1,8 +1,8 @@
 import { BankResponse } from "@/features/bank/types/bank";
 import { API, ApiResponse, axiosClient } from "@/shared/api";
 import {
-    DepositConfirmRequest,
-    DepositInitiateRequest
+    TopUpConfirmRequest,
+    TopUpInitiateRequest
 } from "../types/topup";
 
 import {
@@ -20,7 +20,7 @@ class TopUpService {
 
     // Bước 1: Khởi tạo nạp tiền
     async initiateDeposit(
-        payload: DepositInitiateRequest
+        payload: TopUpInitiateRequest
     ): Promise<ApiResponse<void>> {
         const response = await axiosClient.post<ApiResponse<void>>(
             API.TOPUP_INITIATE,
@@ -31,7 +31,7 @@ class TopUpService {
 
     // Bước 2: Xác nhận OTP nạp tiền
     async confirmDeposit(
-        payload: DepositConfirmRequest
+        payload: TopUpConfirmRequest
     ): Promise<ApiResponse<TransactionResultResponse>> {
 
         const response =

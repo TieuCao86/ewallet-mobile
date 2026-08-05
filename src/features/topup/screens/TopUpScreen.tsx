@@ -12,12 +12,13 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AmountInput } from "@/shared/components/AppInput/AmountInput";
+import TransactionFlow from "@/shared/components/AppModal/TransactionFlow";
+import TransactionPinOtpModal from "@/shared/components/AppModal/TransactionPinOtpModal";
+import BankPicker from "@/shared/components/BankPicker";
+
 import PrimaryButton from "@/shared/components/AppButton";
 
-import { AmountInput } from "../components/AmountInput";
-import { DestinationPicker } from "../components/DestinationPicker";
-import { PaymentSourcePicker } from "../components/PaymentSourcePicker";
-import { TopUpModal } from "../components/TopUpModal";
 import { useConfirmTopUp } from "../hooks/useConfirmTopUp";
 import { useInitiateTopUp } from "../hooks/useInitiateTopUp";
 import { useMyPaymentSources } from "../hooks/useMyPaymentSources";
@@ -28,9 +29,8 @@ export default function TopUpScreen() {
     const initiateMutation = useInitiateTopUp();
     const confirmMutation = useConfirmTopUp();
 
-    const [destination, setDestination] = useState<"wallet" | "bag">("wallet");
     const [amount, setAmount] = useState<string>("");
-    const [selectedBankId, setSelectedBankId] = useState<number | null>(null);
+    const [selectedBankAccountId, setSelectedBankAccountId] = useState<number | null>(null);
 
     // Modal State
     const [step, setStep] = useState<"IDLE" | "PIN" | "OTP">("IDLE");
@@ -42,8 +42,7 @@ export default function TopUpScreen() {
     const [canResend, setCanResend] = useState<boolean>(false);
 
     const numericAmount = Number(amount.replace(/\D/g, "")) || 0;
-    const submitting =
-        initiateMutation.isPending || confirmMutation.isPending;
+    const submitting = initiateMutation.isPending || confirmMutation.isPending;
 
     useEffect(() => {
         let timer: ReturnType<typeof setInterval>;
@@ -62,23 +61,26 @@ export default function TopUpScreen() {
             return;
         }
 
-        const bankIdToUse =
-            selectedBankId || (myBanks.length > 0 ? myBanks[0].id : null);
+        const bankAccountIdToUse = selectedBankAccountId || (myBanks.length > 0 ? myBanks[0].bankAccountId : null);
 
-        if (!bankIdToUse) {
-            Alert.alert("Thông báo", "Vui lòng chọn hoặc liên kết thêm ngân hàng");
+        if (!bankAccountIdToUse) {
+            Alert.alert(
+                "Thông báo",
+                "Vui lòng chọn hoặc liên kết thêm ngân hàng"
+            );
             return;
         }
-        setSelectedBankId(bankIdToUse);
+
+        setSelectedBankAccountId(bankAccountIdToUse);
         setStep("PIN");
     };
 
     const onSubmitPin = () => {
-        if (!selectedBankId) return;
+        if (!selectedBankAccountId) return;
 
         initiateMutation.mutate(
             {
-                bankId: selectedBankId,
+                bankAccountId: selectedBankAccountId,
                 amount: numericAmount,
                 pin,
             },
@@ -98,11 +100,11 @@ export default function TopUpScreen() {
     };
 
     const onSubmitOtp = () => {
-        if (!selectedBankId) return;
+        if (!selectedBankAccountId) return;
 
         confirmMutation.mutate(
             {
-                bankId: selectedBankId,
+                bankAccountId: selectedBankAccountId,
                 amount: numericAmount,
                 otp,
             },
@@ -176,11 +178,17 @@ export default function TopUpScreen() {
             >
                 {/* CARD 1: ĐÍCH ĐẾN & INPUT SỐ TIỀN */}
                 <View style={styles.card}>
-                    <Text style={styles.cardTitle}>Nạp tiền vào</Text>
-                    <DestinationPicker
-                        destination={destination}
-                        onSelect={setDestination}
+                    <Text style={styles.cardTitle}>Thông tin giao dịch</Text>
+
+                    <TransactionFlow
+                        type="TOP_UP"
+                        bankName={
+                            myBanks.find(bank => bank.bankAccountId === selectedBankAccountId)?.bankName
+                        }
                     />
+
+                    <View style={{ height: 16 }} />
+
                     <AmountInput
                         value={amount}
                         onChangeText={(val) => setAmount(val.replace(/\D/g, ""))}
@@ -189,11 +197,11 @@ export default function TopUpScreen() {
                 </View>
 
                 {/* CARD 2: NGUỒN TIỀN THANH TOÁN */}
-                <PaymentSourcePicker
+                <BankPicker
                     banks={myBanks}
                     loading={isLoading}
-                    selectedBankId={selectedBankId}
-                    onSelectBank={setSelectedBankId}
+                    selectedBankAccountId={selectedBankAccountId}
+                    onSelectBankAccount={setSelectedBankAccountId}
                     onAddBank={() => router.push("/bank/link" as any)}
                 />
             </ScrollView>
@@ -204,7 +212,8 @@ export default function TopUpScreen() {
             </View>
 
             {/* MODAL XÁC NHẬN PIN / OTP */}
-            <TopUpModal
+            <TransactionPinOtpModal
+                visible={step !== "IDLE"}
                 step={step}
                 pin={pin}
                 otp={otp}

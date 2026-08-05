@@ -8,7 +8,7 @@ export interface BankMasterResponse {
 
 // Bank Link / Info
 export interface BankResponse {
-  id: number;
+  bankAccountId: number;
   bankId: number;
   bankName: string;
   logo: string;
@@ -20,7 +20,6 @@ export interface BankResponse {
 export interface LinkBankRequest {
   bankId: number;
   accountNumber: string;
-  phone: string;
 }
 
 export interface LinkBankResponse {

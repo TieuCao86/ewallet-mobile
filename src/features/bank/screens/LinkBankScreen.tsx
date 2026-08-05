@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import {
     ActivityIndicator,
@@ -24,7 +25,6 @@ export default function LinkBankScreen() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedBankId, setSelectedBankId] = useState<number | null>(null);
     const [accountNumber, setAccountNumber] = useState<string>("");
-    const [phone, setPhone] = useState<string>("");
 
     const filteredBanks = useMemo(() => {
         if (!searchQuery.trim()) {
@@ -41,8 +41,14 @@ export default function LinkBankScreen() {
     }, [masterBanks, searchQuery]);
 
     const onSubmit = () => {
+
         if (!selectedBankId) {
             Alert.alert("Thông báo", "Vui lòng chọn ngân hàng");
+            return;
+        }
+
+        if (!accountNumber.trim()) {
+            Alert.alert("Thông báo", "Vui lòng nhập số tài khoản");
             return;
         }
 
@@ -50,11 +56,20 @@ export default function LinkBankScreen() {
             {
                 bankId: selectedBankId,
                 accountNumber: accountNumber.trim(),
-                phone: phone.trim(),
             },
             {
                 onSuccess: () => {
                     Alert.alert("Thành công", "Liên kết ngân hàng thành công");
+
+                    setAccountNumber("");
+                    setSelectedBankId(null);
+
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => router.back()
+                        }
+                    ]
                 },
                 onError: (error: any) => {
                     Alert.alert(
@@ -104,18 +119,6 @@ export default function LinkBankScreen() {
                     keyboardType="numeric"
                     leftIcon={
                         <MaterialCommunityIcons name="bank" size={22} color="#1976D2" />
-                    }
-                />
-
-                {/* Số điện thoại */}
-                <AppInput
-                    label="Số điện thoại"
-                    placeholder="Nhập SĐT đăng ký tại ngân hàng"
-                    value={phone}
-                    onChangeText={setPhone}
-                    keyboardType="phone-pad"
-                    leftIcon={
-                        <MaterialCommunityIcons name="phone" size={22} color="#1976D2" />
                     }
                 />
 
